@@ -1,0 +1,54 @@
+# Data files — large, not committed
+data/
+*.csv
+*.zip
+
+# Model artifacts
+# BEFORE SUBMISSION: comment these two lines so the trained
+# model gets committed — evaluator won't need to retrain
+# models/*.joblib
+# models/*.pkl
+
+# SQLite database — generated at runtime
+sql/*.db
+
+# Environment variables — never commit secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+.pytest_cache/
+.mypy_cache/
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/
+
+# Logs
+logs/
+*.log

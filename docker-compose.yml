@@ -1,0 +1,64 @@
+version: '3.8'
+
+# ============================================================
+# Credit Risk Intelligence Platform — Docker Compose
+# ============================================================
+# Usage:
+#   docker-compose up --build        # First run
+#   docker-compose up                # Subsequent runs
+#   docker-compose down              # Stop
+#   docker-compose logs -f           # Tail logs
+# ============================================================
+
+services:
+  credit-risk-platform:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: credit_risk_platform
+    image: credit-risk-platform:latest
+
+    ports:
+      - "8501:8501"    # Streamlit UI
+
+    volumes:
+      # Mount local data directory (application_train.csv goes here)
+      # The data folder is NOT committed to git — mount it as a volume
+      - ./data:/app/data
+
+      # Persist trained model artifacts between restarts
+      - ./models:/app/models
+
+      # Persist SQLite database between restarts
+      - ./sql:/app/sql
+
+      # Persist logs
+      - ./logs:/app/logs
+
+    env_file:
+      - .env    # ANTHROPIC_API_KEY etc — copy from .env.example
+
+    environment:
+      - DATA_DIR=/app/data
+      - MODEL_PATH=/app/models/lgbm_model.joblib
+      - SQLITE_DB_PATH=/app/sql/credit_risk.db
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+    # Resource limits (optional — adjust for your machine)
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 4G
+    #       cpus: '2'
+
+# ── Volumes (named, for clarity) ─────────────────────────────────────────────
+# Using bind mounts above (./data, ./models etc) rather than named volumes
+# so that files are directly accessible on the host filesystem.
