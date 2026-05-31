@@ -10,7 +10,7 @@ data/
 # models/*.pkl
 
 # SQLite database — generated at runtime
-sql/*.db
+#sql/*.db
 
 # Environment variables — never commit secrets
 .env
