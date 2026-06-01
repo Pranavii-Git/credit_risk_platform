@@ -234,19 +234,19 @@ with st.sidebar:
     st.markdown("---")
 
     if dataset_exists():
-        st.success("✅ Dataset loaded")
+        st.success(" Dataset loaded")
     else:
-        st.error("❌ Dataset not found\nPlace `application_train.csv` in `./data/`")
+        st.error(" Dataset not found\nPlace `application_train.csv` in `./data/`")
 
     if model_is_trained():
-        st.success("✅ Model trained")
+        st.success(" Model trained")
     else:
-        st.warning("⚠️ Model not trained yet")
+        st.warning("Model not trained yet")
 
     st.markdown("---")
 
     if dataset_exists() and not model_is_trained():
-        if st.button("🚀 Train Model Now", use_container_width=True, type="primary"):
+        if st.button("Train Model Now", use_container_width=True, type="primary"):
             with st.spinner("Training model — this takes 2–5 minutes …"):
                 try:
                     from src.data.loader import load_train, load_or_create_sqlite
@@ -256,7 +256,7 @@ with st.sidebar:
                     df_proc, artifacts = preprocess(df_raw)
                     run_training(df_proc, artifacts)
                     load_or_create_sqlite()
-                    st.success("✅ Training complete!")
+                    st.success("Training complete!")
                     st.cache_resource.clear()
                     st.cache_data.clear()
                     st.rerun()
@@ -294,13 +294,12 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📊 EDA Dashboard",
-    "🎯 Risk Prediction",
-    "💬 Talk to Data",
-    "💡 Business Insights",
-    "📋 Project Overview",
+    " EDA Dashboard",
+    "Risk Prediction",
+    "Talk to Data",
+    "Business Insights",
+    "Project Overview",
 ])
 
 
@@ -309,8 +308,29 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 # ═══════════════════════════════════════════════════════════════════════════════
 with tab1:
     if not dataset_exists():
-        st.info("EDA Dashboard requires the dataset locally. "
-                "See README for setup instructions.")
+        st.markdown("""
+        <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px;
+                    padding:1.5rem 2rem; margin-top:1rem;">
+            <h3 style="color:#1e40af; margin:0 0 0.5rem;">EDA Dashboard</h3>
+            <p style="color:#1e293b; margin:0 0 0.8rem;">
+                The EDA Dashboard requires <b>application_train.csv</b> which cannot be hosted
+                online due to its size (307MB).
+            </p>
+            <p style="color:#475569; margin:0 0 0.8rem;">
+                 <b>All other tabs work fully on this deployment:</b><br><br>
+                &nbsp;&nbsp;•  <b>Risk Prediction</b> — try the loan applicant assessment form<br>
+                &nbsp;&nbsp;•  <b>Talk to Data</b> — ask questions in plain English<br>
+                &nbsp;&nbsp;•  <b>Business Insights</b> — view 10 credit policy insights<br>
+                &nbsp;&nbsp;•  <b>Project Overview</b> — see architecture and tech stack
+            </p>
+            <p style="color:#64748b; font-size:0.85rem; margin:0;">
+                To enable EDA locally: download the dataset from
+                <a href="https://www.kaggle.com/competitions/home-credit-default-risk/data"
+                   style="color:#2563eb;">Kaggle</a>
+                and place it in <code>./data/application_train.csv</code>
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
         st.stop()
 
     df  = load_data()
@@ -368,14 +388,9 @@ with tab1:
 # TAB 2 — RISK PREDICTION + MODEL METRICS
 # ═══════════════════════════════════════════════════════════════════════════════
 with tab2:
-    import os
-    st.write("CWD:", os.getcwd())
-    st.write("Model path from config:", str(MODEL_PATH))
-    st.write("Model exists:", Path(MODEL_PATH).exists())
-    for root, dirs, files in os.walk("."):
-        for file in files:
-            if file.endswith(".joblib"):
-                st.write("Model found at:", os.path.join(root, file))
+    if not model_is_trained():
+        st.warning("Model is not trained yet. Click **Train Model Now** in the sidebar.")
+        st.stop()
 
     bundle        = get_model_bundle()
     model         = bundle["model"]
@@ -385,12 +400,11 @@ with tab2:
     test_metrics  = bundle.get("test_metrics", {})
     cv_results    = bundle.get("cv_results", None)
 
-    # ── Selected Model Banner ─────────────────────────────────────────────────
     st.markdown("""
     <div style="background:#1e40af; border-radius:12px; padding:1rem 1.5rem; margin-bottom:1rem;
                 box-shadow:0 4px 16px rgba(37,99,235,0.3);">
         <div style="color:#ffffff; font-size:1rem; font-weight:700; margin-bottom:0.3rem;">
-            ✅ Selected Model: LightGBM (DART Boosting)
+             Selected Model: LightGBM (DART Boosting)
         </div>
         <div style="color:#bfdbfe; font-size:0.85rem;">
             Chosen for best ROC-AUC on 307K applicant records with class_weight=balanced for imbalance handling
@@ -398,7 +412,6 @@ with tab2:
     </div>
     """, unsafe_allow_html=True)
 
-    # ── Accuracy Metric Cards ─────────────────────────────────────────────────
     if test_metrics:
         st.markdown('<div class="section-title">Model Accuracy — Held-Out Test Set (20%)</div>', unsafe_allow_html=True)
         m1, m2, m3, m4, m5, m6 = st.columns(6)
@@ -440,26 +453,25 @@ with tab2:
     else:
         st.info("Retrain the model to see live accuracy metrics from your dataset.")
 
-    # ── Model Comparison Table ────────────────────────────────────────────────
     st.markdown("---")
     st.markdown('<div class="section-title">Model Comparison — All 3 Models Evaluated</div>', unsafe_allow_html=True)
 
     if cv_results is not None and not cv_results.empty:
         display_cv = cv_results.copy()
         display_cv["Selected"] = display_cv["Model"].apply(
-            lambda x: "✅ SELECTED" if "LightGBM" in x else ""
+            lambda x: " SELECTED" if "LightGBM" in x else ""
         )
         st.dataframe(display_cv, use_container_width=True, hide_index=True)
     else:
         st.dataframe(pd.DataFrame({
-            "Model":               ["LightGBM ✅", "XGBoost", "Logistic Regression"],
+            "Model":               ["LightGBM ", "XGBoost", "Logistic Regression"],
             "CV ROC-AUC":          ["0.7580 ± 0.0017", "0.7606 ± 0.0007", "0.5922 ± 0.0058"],
             "Training Time":       ["~3 min", "~1 min", "~11 min (slow)"],
             "Class Imbalance":     ["class_weight=balanced", "scale_pos_weight=11", "class_weight=balanced"],
-            "Missing Values":      ["Native handling ✅", "Requires imputation", "Requires imputation"],
+            "Missing Values":      ["Native handling ", "Requires imputation", "Requires imputation"],
             "Interpretability":    ["SHAP (tree)", "SHAP (tree)", "Coefficients (linear)"],
-            "Business Suitability":["✅ Best overall", "✅ Good", "❌ Too simple"],
-            "Selected":            ["✅ YES", "❌ No", "❌ No"],
+            "Business Suitability":[" Best overall", " Good", " Too simple"],
+            "Selected":            [" YES", " No", " No"],
         }), use_container_width=True, hide_index=True)
 
     st.markdown("""
@@ -478,7 +490,6 @@ with tab2:
     </div>
     """, unsafe_allow_html=True)
 
-    # ── Prediction Form ───────────────────────────────────────────────────────
     st.markdown("---")
     st.markdown('<div class="section-title">Applicant Risk Assessment</div>', unsafe_allow_html=True)
 
@@ -573,7 +584,6 @@ with tab2:
                     <div style="color:#1e293b; font-size:0.95rem; margin-top:0.3rem; line-height:1.5;">
                         {risk['recommendation']}</div></div>""", unsafe_allow_html=True)
 
-            # SHAP — safe import
             st.markdown('<div class="section-title" style="margin-top:1.5rem;">Explainable AI — Feature Contributions</div>', unsafe_allow_html=True)
             try:
                 from src.ml.predict import get_shap_explanation, plot_shap_waterfall
@@ -583,26 +593,19 @@ with tab2:
                     st.markdown("**Top Contributing Factors:**")
                     for item in shap_feats[:5]:
                         icon = "🔴" if item["shap_value"] > 0 else "🟢"
-                        st.markdown(
-                            f"{icon} **{item['business_label']}** — "
-                            f"{item['direction']} (SHAP: {item['shap_value']:+.4f})"
-                        )
+                        st.markdown(f"{icon} **{item['business_label']}** — {item['direction']} (SHAP: {item['shap_value']:+.4f})")
             except Exception as shap_err:
-                st.info(
-                    "SHAP explanation unavailable due to a system library conflict (PyTorch DLL). "
-                    "Fix: run `pip uninstall torch -y` then restart. Risk score above is still accurate."
-                )
+                st.info("SHAP explanation unavailable due to a system library conflict. Risk score above is still accurate.")
                 log.warning(f"SHAP failed: {shap_err}")
 
         except Exception as e:
             st.error(f"Prediction error: {e}")
             log.exception("Prediction failed")
 
-    # ── Evaluation Charts ─────────────────────────────────────────────────────
     st.markdown("---")
     st.markdown('<div class="section-title">Model Evaluation Charts</div>', unsafe_allow_html=True)
 
-    if st.button("📊 Show Confusion Matrix & ROC Curve"):
+    if st.button(" Show Confusion Matrix & ROC Curve"):
         from src.data.preprocessor import preprocess
         from src.ml.evaluate import (
             compute_metrics, metrics_business_table,
@@ -669,20 +672,17 @@ with tab3:
             "Add `GROQ_API_KEY=gsk_...` to your `.env` file and restart."
         )
 
-    # ── Initialise session state ──────────────────────────────────────────────
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
     if "nl_question" not in st.session_state:
         st.session_state.nl_question = ""
 
-    # ── Demo buttons ──────────────────────────────────────────────────────────
     st.markdown("**💡 Try a demo query:**")
     cols = st.columns(4)
     for i, demo in enumerate(DEMO_QUERIES[:8]):
         if cols[i % 4].button(demo["label"], key=f"demo_{i}"):
             st.session_state.nl_question = demo["question"]
 
-    # ── Input ─────────────────────────────────────────────────────────────────
     question = st.text_input(
         "Your question:",
         value=st.session_state.nl_question,
@@ -694,11 +694,10 @@ with tab3:
     with ask_col:
         ask_btn = st.button("🔍 Ask", use_container_width=True, type="primary")
     with clear_col:
-        if st.button("🗑️ Clear", use_container_width=True):
+        if st.button("Clear", use_container_width=True):
             st.session_state.chat_history = []
             st.session_state.nl_question  = ""
 
-    # ── Process question ──────────────────────────────────────────────────────
     if ask_btn and question.strip() and api_ok:
         from src.talk_to_data.nl_to_sql import process_question
         with st.spinner("Thinking …"):
@@ -706,40 +705,22 @@ with tab3:
         st.session_state.chat_history.append(result)
         st.session_state.nl_question = ""
 
-    # ── Show results ──────────────────────────────────────────────────────────
     if st.session_state.chat_history:
         st.markdown("---")
         for entry in st.session_state.chat_history:
-            # User bubble
-            st.markdown(
-                f'<div class="chat-user">❓ {entry["question"]}</div>',
-                unsafe_allow_html=True,
-            )
-
+            st.markdown(f'<div class="chat-user"> {entry["question"]}</div>', unsafe_allow_html=True)
             if entry.get("error") and entry["results"] is None:
                 st.error(f"❌ {entry['explanation']}")
             else:
-                # SQL
                 with st.expander("🔍 View Generated SQL", expanded=False):
-                    st.markdown(
-                        f'<div class="sql-block">{entry["sql"]}</div>',
-                        unsafe_allow_html=True,
-                    )
-
-                # Data table
+                    st.markdown(f'<div class="sql-block">{entry["sql"]}</div>', unsafe_allow_html=True)
                 if entry["results"] is not None and not entry["results"].empty:
                     st.dataframe(entry["results"].head(50), use_container_width=True)
                     st.caption(f"{entry['row_count']} rows returned")
                 else:
                     st.warning("Query returned no results.")
-
-                # Explanation bubble
                 if entry["explanation"]:
-                    st.markdown(
-                        f'<div class="chat-bot">💡 {entry["explanation"]}</div>',
-                        unsafe_allow_html=True,
-                    )
-
+                    st.markdown(f'<div class="chat-bot">💡 {entry["explanation"]}</div>', unsafe_allow_html=True)
             st.markdown("---")
 
 
@@ -856,7 +837,7 @@ with tab5:
                 </td>
                 <td colspan="2" style="background:#1e40af; border:2px solid #3b82f6; border-radius:8px;
                     padding:0.8rem; text-align:center; color:white; font-weight:600;">
-                    🖥️ Streamlit UI (app.py)<br>
+                    Streamlit UI (app.py)<br>
                     <span style="font-size:0.8rem;font-weight:400;">
                         EDA · Risk Prediction · Talk to Data · Insights · Overview
                     </span>
@@ -870,7 +851,7 @@ with tab5:
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("**📦 Tech Stack**")
+        st.markdown("**Tech Stack**")
         st.dataframe(pd.DataFrame({
             "Component":  ["ML Model", "Explainable AI", "NL-to-SQL LLM", "Database", "UI", "Deployment"],
             "Choice":     ["LightGBM", "SHAP TreeExplainer", "Groq Llama 3.1 (FREE)", "SQLite", "Streamlit", "Docker + Compose"],
@@ -885,7 +866,7 @@ with tab5:
         }), use_container_width=True, hide_index=True)
 
     with col2:
-        st.markdown("**🛡️ Hallucination Reduction — 4 Layers**")
+        st.markdown("**Hallucination Reduction — 4 Layers**")
         st.dataframe(pd.DataFrame({
             "Layer":    ["1. Schema Grounding", "2. Rule Blocklist", "3. LLM Validation", "4. Self-Correction"],
             "Prevents": ["Hallucinated columns", "SQL injection", "Schema violations", "Execution errors"],
@@ -933,10 +914,10 @@ credit_risk_platform/
 git clone https://github.com/Pranavii-Git/credit_risk_platform.git
 cp .env.example .env  # add GROQ_API_KEY
 
-# 2. Add dataset → ./data/application_train.csv
+# 2. Add dataset to ./data/application_train.csv
 
 # 3. Run
 docker-compose up --build
-# OR: streamlit run app.py → http://localhost:8501
+# OR: streamlit run app.py
     </pre></div>
     """, unsafe_allow_html=True)
