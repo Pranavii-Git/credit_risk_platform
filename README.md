@@ -1,4 +1,4 @@
-# Credit Risk Intelligence Platform 🏦
+# Credit Risk Intelligence Platform 
 
 An AI-powered end-to-end credit risk assessment system built on the Home Credit Default Risk dataset. Combines machine learning, explainable AI, and a natural language data interface into a single deployable application.
 
