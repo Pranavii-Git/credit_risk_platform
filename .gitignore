@@ -1,5 +1,5 @@
 # Data files — large, not committed
-data/
+/data/
 *.csv
 *.zip
 
@@ -9,8 +9,7 @@ data/
 # models/*.joblib
 # models/*.pkl
 
-# SQLite database — generated at runtime
-#sql/*.db
+
 
 # Environment variables — never commit secrets
 .env
