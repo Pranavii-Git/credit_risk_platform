@@ -367,9 +367,14 @@ with tab1:
 # TAB 2 — RISK PREDICTION + MODEL METRICS
 # ═══════════════════════════════════════════════════════════════════════════════
 with tab2:
-    if not model_is_trained():
-        st.warning("Model is not trained yet. Click **Train Model Now** in the sidebar.")
-        st.stop()
+    import os
+    st.write("CWD:", os.getcwd())
+    st.write("Model path from config:", str(MODEL_PATH))
+    st.write("Model exists:", Path(MODEL_PATH).exists())
+    for root, dirs, files in os.walk("."):
+        for file in files:
+            if file.endswith(".joblib"):
+                st.write("Model found at:", os.path.join(root, file))
 
     bundle        = get_model_bundle()
     model         = bundle["model"]
