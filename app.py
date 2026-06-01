@@ -293,12 +293,7 @@ st.markdown("""
   <p>AI-powered loan default prediction · Explainable AI · Natural Language Analytics</p>
 </div>
 """, unsafe_allow_html=True)
-# DEBUG
-import os
-st.write(" App loaded successfully")
-st.write("CWD:", os.getcwd())
-st.write("Model exists:", Path(MODEL_PATH).exists())
-st.write("Model path:", str(MODEL_PATH))
+
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📊 EDA Dashboard",
