@@ -8,7 +8,7 @@ An AI-powered end-to-end credit risk assessment system built on the Home Credit 
 
 **Deployed App:** https://creditriskplatformgit-fdegsjctmuk3dme6ozdfri.streamlit.app/
 
-Note: EDA tab requires local dataset. All other tabs work fully on the live demo.
+Note: EDA tab requires local dataset. All other tabs requires local database (credit_risk.db) to work fully on the live demo.
 
 ---
 
@@ -91,7 +91,7 @@ streamlit run app.py
 
 Open **http://localhost:8501**
 
-Tabs 2 to 5 work immediately. Tab 1 (EDA) requires the dataset — see below.
+Tabs 2 to 5 will work only on local database to work immediately. Tab 1 (EDA) requires the dataset — see below.
 
 ---
 
